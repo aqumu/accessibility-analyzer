@@ -4,7 +4,7 @@ import axios from "axios";
 import { supabase } from "./supabaseClient.ts";
 
 const api = axios.create({
-  baseURL: "https://api.accessibility-analyzer.ru",
+  baseURL: "https://api.accessibility-analyzer.ru/api",
   timeout: 5000,
   withCredentials: true,
 });
