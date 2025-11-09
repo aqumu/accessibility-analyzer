@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // ✅ correct import
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import {
   Card,
@@ -23,7 +23,6 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // ✅ redirect authenticated users immediately
   useEffect(() => {
     (async () => {
       const { data, error } = await supabase.auth.getUser();
