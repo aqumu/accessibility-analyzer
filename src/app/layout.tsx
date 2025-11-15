@@ -1,24 +1,22 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+import { Manrope } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
+
+const manrope = Manrope({
+    subsets: ["latin", "cyrillic"],
+    variable: "--font-sans",
+    weight: ["200","300","400","500","600","700","800"],
+    display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const inter = Inter({
-    subsets: ["latin"],
-    variable: "--font-inter",
-    weight: ["100","200","300","400","500","600","700","800","900"],
+const jetbrainsMono = JetBrains_Mono({
+    subsets: ["latin", "cyrillic"],
+    variable: "--font-mono",
+    weight: ["400","500","600","700"],
     display: "swap",
 });
 
@@ -39,7 +37,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${inter.variable} ${geistMono.variable} antialiased`}>
+            <body className={`${manrope.variable} ${jetbrainsMono.variable} antialiased`}>
                 <ThemeProvider
                     attribute="class"
                     enableSystem

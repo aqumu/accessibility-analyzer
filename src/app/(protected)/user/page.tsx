@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import api from "@/lib/api.ts";
-import { supabase } from "@/lib/supabaseClient.ts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { ModeToggle } from "@/components/mode-toggle.tsx";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
+import {supabase} from "@/lib/supabaseClient.ts";
 
 interface UserProfile {
   id: string;
@@ -17,8 +17,8 @@ interface UserProfile {
 }
 
 interface UserStats {
-  total_bookmarks: number;
-  today_bookmarks: number;
+  total_analyses: number;
+  today_analyses: number;
   last_activity?: string | null;
 }
 
@@ -50,8 +50,8 @@ export default function UserPage() {
       setStats(statsRes.data);
       setQuota(quotaRes.data);
     } catch (err) {
-      console.error("Error fetching user data:", err);
-      toast.error("Could not fetch user information");
+      console.error("Ошибка при получении данных пользователя:", err);
+      toast.error("Не удалось получить информацию о пользователе");
     } finally {
       setLoading(false);
     }
@@ -67,8 +67,8 @@ export default function UserPage() {
       await supabase.auth.signOut();
       window.location.href = "/login";
     } catch (err) {
-      console.error("Logout failed", err);
-      toast.error("Failed to log out. Please try again.");
+      console.error("Ошибка выхода", err);
+      toast.error("Не удалось выйти. Пожалуйста, попробуйте снова.");
       setLoggingOut(false);
     }
   };
@@ -76,7 +76,7 @@ export default function UserPage() {
   if (loading) {
     return (
         <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center">
-          <p>Loading user data...</p>
+          <p>Загрузка данных пользователя...</p>
         </div>
     );
   }
@@ -89,7 +89,7 @@ export default function UserPage() {
               className="flex items-center text-2xl font-semibold hover:text-primary transition-colors"
           >
             <ArrowLeft className="mr-2" />
-            Back to Dashboard
+            На главную
           </Link>
 
           <div className="flex items-center gap-2">
@@ -100,7 +100,7 @@ export default function UserPage() {
                 onClick={handleLogout}
                 disabled={loggingOut}
             >
-              {loggingOut ? "Logging out..." : "Logout"}
+              {loggingOut ? "Выход…" : "Выйти"}
             </Button>
           </div>
         </div>
@@ -109,7 +109,7 @@ export default function UserPage() {
           {/* Profile */}
           <Card>
             <CardHeader>
-              <CardTitle>Your Profile</CardTitle>
+              <CardTitle>Ваш профиль</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <form
@@ -124,11 +124,11 @@ export default function UserPage() {
                         public_name: profile.public_name,
                       });
 
-                      toast.success("Your profile has been updated successfully");
+                      toast.success("Профиль успешно обновлён");
                       setOriginalName(profile.public_name);
                     } catch (err) {
                       console.error(err);
-                      toast.error("Something went wrong, please try again");
+                      toast.error("Произошла ошибка, попробуйте снова");
                     } finally {
                       setSaving(false);
                     }
@@ -137,7 +137,7 @@ export default function UserPage() {
               >
                 <div>
                   <label className="block text-xs font-medium pb-0.5">
-                    Username
+                    Имя пользователя
                   </label>
                   <input
                       type="text"
@@ -145,9 +145,10 @@ export default function UserPage() {
                       value={profile?.public_name || ""}
                       onChange={(e) =>
                           setProfile((prev) =>
-                              prev ? { ...prev, public_name: e.target.value } : prev,
+                              prev ? { ...prev, public_name: e.target.value } : prev
                           )
                       }
+                      aria-label="Поле для имени пользователя"
                   />
                 </div>
                 <Button
@@ -160,7 +161,7 @@ export default function UserPage() {
                         !profile?.public_name
                     }
                 >
-                  {saving ? "Saving..." : "Save Changes"}
+                  {saving ? "Сохранение…" : "Сохранить изменения"}
                 </Button>
               </form>
             </CardContent>
@@ -169,20 +170,20 @@ export default function UserPage() {
           {/* Stats */}
           <Card>
             <CardHeader>
-              <CardTitle>Activity</CardTitle>
+              <CardTitle>Активность</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <p>
-                <strong>Total bookmarks:</strong> {stats?.total_bookmarks ?? 0}
+                <strong>Всего анализов:</strong> {stats?.total_analyses ?? 0}
               </p>
               <p>
-                <strong>Bookmarks today:</strong> {stats?.today_bookmarks ?? 0}
+                <strong>Анализы сегодня:</strong> {stats?.today_analyses ?? 0}
               </p>
               <p>
-                <strong>Last activity:</strong>{" "}
+                <strong>Последняя активность:</strong>{" "}
                 {stats?.last_activity
                     ? new Date(stats.last_activity).toLocaleString()
-                    : "No activity yet"}
+                    : "Активности пока нет"}
               </p>
             </CardContent>
           </Card>
@@ -190,17 +191,17 @@ export default function UserPage() {
           {/* Quota */}
           <Card>
             <CardHeader>
-              <CardTitle>Daily Quota</CardTitle>
+              <CardTitle>Дневной лимит</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <p>
-                <strong>Limit:</strong> {quota?.daily_limit ?? 0}
+                <strong>Лимит:</strong> {quota?.daily_limit ?? 0}
               </p>
               <p>
-                <strong>Used today:</strong> {quota?.used_today ?? 0}
+                <strong>Использовано сегодня:</strong> {quota?.used_today ?? 0}
               </p>
               <p>
-                <strong>Remaining:</strong> {quota?.remaining ?? 0}
+                <strong>Осталось:</strong> {quota?.remaining ?? 0}
               </p>
               <div className="w-full bg-muted rounded-full h-2 mt-2">
                 <div
@@ -209,7 +210,7 @@ export default function UserPage() {
                       width: `${Math.min(
                           ((quota?.used_today ?? 0) / (quota?.daily_limit ?? 1)) *
                           100,
-                          100,
+                          100
                       )}%`,
                     }}
                 ></div>
@@ -219,7 +220,7 @@ export default function UserPage() {
 
           <div className="text-center pt-4">
             <Button asChild variant="outline">
-              <Link href="/">Back to Dashboard</Link>
+              <Link href="/">На главную</Link>
             </Button>
           </div>
         </div>
