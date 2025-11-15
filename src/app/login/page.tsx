@@ -36,14 +36,14 @@ export default function Login() {
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const signInWithEmail = async () => {
-    if (!email) return setErrorMsg("Please enter your email address.");
-    if (!isValidEmail(email)) return setErrorMsg("Please enter a valid email address.");
+    if (!email) return setErrorMsg("Пожалуйста, введите адрес электронной почты.");
+    if (!isValidEmail(email)) return setErrorMsg("Пожалуйста, введите корректный адрес электронной почты.");
 
     setErrorMsg("");
     setLoading(true);
     const { error } = await supabase.auth.signInWithOtp({ email });
-    if (error) setMessage(`Error: ${error.message}`);
-    else setMessage("Check your email for the login link!");
+    if (error) setMessage(`Ошибка: ${error.message}`);
+    else setMessage("Проверьте вашу почту для ссылки входа!");
     setLoading(false);
   };
 
@@ -53,7 +53,7 @@ export default function Login() {
       provider: "google",
       options: { redirectTo: `${window.location.origin}/` },
     });
-    if (error) setMessage(`Error: ${error.message}`);
+    if (error) setMessage(`Ошибка: ${error.message}`);
     setLoading(false);
   };
 
@@ -61,9 +61,9 @@ export default function Login() {
       <div className="flex items-center justify-center min-h-screen p-4">
         <Card className="w-full max-w-sm shadow-md border rounded-xl">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-semibold">Welcome back</CardTitle>
+            <CardTitle className="text-2xl font-semibold">С возвращением</CardTitle>
             <CardDescription>
-              Enter your email to sign in or create an account
+              Введите ваш email для входа или создания аккаунта
             </CardDescription>
           </CardHeader>
 
@@ -78,6 +78,7 @@ export default function Login() {
                       setEmail(e.target.value);
                       if (errorMsg) setErrorMsg("");
                     }}
+                    aria-label="Поле для ввода email"
                 />
                 {errorMsg && (
                     <p className="text-sm text-destructive mt-1">{errorMsg}</p>
@@ -91,17 +92,17 @@ export default function Login() {
               >
                 {loading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending...
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Отправка…
                     </>
                 ) : (
-                    "Send Login Link"
+                    "Отправить ссылку для входа"
                 )}
               </Button>
             </div>
 
             <div className="my-6 flex items-center gap-4">
               <Separator className="flex-1" />
-              <span className="text-xs text-muted-foreground">OR</span>
+              <span className="text-xs text-muted-foreground">ИЛИ</span>
               <Separator className="flex-1" />
             </div>
 
@@ -111,7 +112,7 @@ export default function Login() {
                 variant="outline"
                 className="w-full"
             >
-              Sign in with Google
+              Войти через Google
             </Button>
 
             {message && (

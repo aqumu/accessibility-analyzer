@@ -19,7 +19,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     if (checking) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <p>Loading...</p>
+                <p>Загрузка...</p>
             </div>
         );
     }
