@@ -4,7 +4,7 @@ import axios from "axios";
 import { supabase } from "./supabaseClient.ts";
 
 const api = axios.create({
-  baseURL: "https://localhost:8000/",
+  baseURL: "http://localhost:8000/api/",
   timeout: 10000,
   withCredentials: true,
 });
