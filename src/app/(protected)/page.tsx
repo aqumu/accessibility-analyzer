@@ -96,6 +96,9 @@ export default function Dashboard() {
     fetchUsername();
   }, []);
 
+  // -----------------------------
+  //    UPDATED START ANALYSIS
+  // -----------------------------
   const startAnalysis = async () => {
     if (!newUrl) return;
 
@@ -108,18 +111,18 @@ export default function Dashboard() {
     setNewUrl("");
 
     try {
-      await api.post("/analyze/start", { url });
       updateTask(id, "analyzing");
 
-      await api.get(`/analyze/analyze?url=${encodeURIComponent(url)}`);
+      // --- REAL BACKEND CALL (matches your working curl) ---
+      // NOTE: your api wrapper should already attach Authorization header if needed.
+      const reportResponse = await api.post("/analyzer/webpages/analyze", {
+        url,
+      });
+
       updateTask(id, "generating");
 
-      const reportResponse = await api.get(
-        `/analyze/report?url=${encodeURIComponent(url)}`,
-      );
-
-      // Expecting the new report format
-      const report = reportResponse.data;
+      // backend returns { webpage_id, run_id, status, report }
+      const report = reportResponse.data?.report ?? reportResponse.data;
 
       updateTask(id, "done", { report });
     } catch (err) {
@@ -131,62 +134,71 @@ export default function Dashboard() {
   };
 
   const renderReport = (report: any) => {
-    if (!report || report.error) {
-      return <p className="text-red-500">{report?.error || "Ошибка отчета"}</p>;
-    }
+  if (!report || report.error) {
+    return <p className="text-red-500">{report?.error || "Ошибка отчета"}</p>;
+  }
 
-    const { url, summary, passed, failed } = report.report ?? {};
+  const { url, summary, passed, failed } = report;
 
-    return (
-      <div className="space-y-3 text-sm">
-        <div className="p-3 bg-muted rounded">
-          <p>
-            <strong>URL:</strong> {url}
-          </p>
-          <p>
-            <strong>Всего правил:</strong> {summary?.total_rules}
-          </p>
-          <p>
-            <strong>Пройдено:</strong> {summary?.passed_rules}
-          </p>
-          <p>
-            <strong>Провалено:</strong> {summary?.failed_rules}
-          </p>
-          <p>
-            <strong>Нарушений:</strong> {summary?.total_violations}
-          </p>
-        </div>
+  return (
+    <div className="space-y-3 text-sm">
+      <div className="p-3 bg-muted rounded">
+        <p><strong>URL:</strong> {url}</p>
+        <p><strong>Всего правил:</strong> {summary?.total_rules}</p>
+        <p><strong>Пройдено:</strong> {summary?.passed_rules}</p>
+        <p><strong>Провалено:</strong> {summary?.failed_rules}</p>
+        <p><strong>Нарушений:</strong> {summary?.total_violations}</p>
+      </div>
 
+      <div>
+        <h4 className="font-semibold">Пройденные правила</h4>
+        <ul className="list-disc ml-5">
+          {passed?.map((r: any) => (
+            <li key={r.rule_id}>
+              [{r.rule_id}] {r.description}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {failed?.length ? (
         <div>
-          <h4 className="font-semibold">Пройденные правила</h4>
-          <ul className="list-disc ml-5">
-            {passed?.map((r: any) => (
+          <h4 className="font-semibold text-red-500">Нарушения</h4>
+          <ul className="list-disc ml-5 text-red-500">
+            {failed.map((r: any) => (
               <li key={r.rule_id}>
                 [{r.rule_id}] {r.description}
               </li>
             ))}
           </ul>
         </div>
+      ) : (
+        <p className="text-green-600 font-semibold">
+          Нарушений не обнаружено
+        </p>
+      )}
 
-        {failed?.length ? (
-          <div>
-            <h4 className="font-semibold text-red-500">Нарушения</h4>
-            <ul className="list-disc ml-5 text-red-500">
-              {failed.map((r: any) => (
-                <li key={r.rule_id}>
-                  [{r.rule_id}] {r.description}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : (
-          <p className="text-green-600 font-semibold">
-            Нарушений не обнаружено
+      {/* --- AI SCORE --- */}
+      {report.usability_score !== undefined && (
+        <div className="p-3 bg-muted rounded mt-4">
+          <h4 className="font-semibold">AI Usability Score</h4>
+          <p className="text-lg font-bold">
+            {report.usability_score !== null ? report.usability_score.toFixed(2) : "N/A"}
           </p>
-        )}
-      </div>
-    );
-  };
+        </div>
+      )}
+
+      {/* --- AI REPORT --- */}
+      {report.ai_report && (
+        <div className="p-3 bg-muted rounded mt-4">
+          <h4 className="font-semibold">AI Report</h4>
+          <p className="whitespace-pre-line text-sm">{report.ai_report}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
